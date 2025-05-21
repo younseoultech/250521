@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>Draggable Rotating Gradient-Texture Text</title>
+  <style>
+    html, body {
+      margin: 0; padding: 0;
+      width: 100%; height: 100%;
+      background: transparent;
+      overflow: hidden;
+      position: relative;
+    }
+    @import url('https://fonts.googleapis.com/css2?family=Figtree:wght@400;700&display=swap');
+
+    .draggable-text {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60vw;
+      padding: 1em;
+      font-family: 'Figtree', sans-serif;
+      font-size: 1.2vw;
+      line-height: 1.6;
+      color: transparent;
+      -webkit-text-fill-color: transparent;
+      -webkit-background-clip: text;
+              background-clip: text;
+      /* CSS로 만든 반복 그라데이션 패턴 */
+      background: repeating-linear-gradient(
+        120deg,
+        rgba(255,255,255,0.2),
+        rgba(255,255,255,0.2) 5px,
+        transparent 5px,
+        transparent 15px
+      );
+      cursor: grab;
+      user-select: none;
+    }
+    .draggable-text.dragging { cursor: grabbing; }
+
+    .draggable-text::before {
+      content: attr(data-text);
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%;
+      /* 부모의 gradient 배경 상속 */
+      background: inherit;
+      transform-origin: center center;
+      animation: spin 15s linear infinite;
+      -webkit-text-fill-color: transparent;
+      -webkit-background-clip: text;
+              background-clip: text;
+      color: transparent;
+      pointer-events: none;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="draggable-text" data-text="
+태풍의 전조
+짙은 회색 구름이 하늘을 뒤덮고, 바람이 휑하니 불어오기 시작한다. 먼 바다에서 전해진 바람결에선 축축한 소금기와 먼지가 뒤섞여 코끝을 간지럽힌다. 집 앞의 가로수 잎사귀가 사방으로 흩날리며, 창문 너머로는 창살 사이로 들어온 바람이 가볍게 커튼을 흔든다. 낮인데도 어두워진 하늘 아래 사람들은 급히 집 안으로 들어가고, 거리의 가로등은 어색하게 일찍 불을 밝힌다.
+
+태풍의 중심으로
+순식간에 바람의 세기는 걷잡을 수 없이 강해지고, 창밖에선 빗줄기가 사선으로 휘몰아친다. 한순간에 거대한 파도가 방파제를 넘고, 도로 위엔 흙탕물과 함께 부서진 나뭇가지들이 떠내려간다. 빗소리는 귀를 찢을 듯 요란하고, 창문 틈새로 차오르는 물 소리가 공포를 더한다. 갑자기 정전이 되고, 주변이 캄캄해진 그 순간—심장 떨리는 정적이 흐르며 이곳이 더는 일상이 아님을 알려준다.
+
+태풍 이후의 풍경
+폭풍이 지나간 뒤, 물이 빠진 거리는 텅 빈 듯 고요하다. 흩어진 물건이 여기저기 널브러졌고, 격렬히 흔들린 가로수는 꺾인 채 뒷골목에 누워 있다. 흙탕물 자국이 벽을 타고 흐르고, 멀리서 들려오는 사이렌 소리는 아직도 긴장이 풀리지 않았음을 알린다. 사람들은 조심스레 발걸음을 옮기며 서로의 무사함을 확인하고, 부서진 벽돌과 유리 조각 사이를 살필 때마다 작게 안도의 한숨을 내쉰다.
+"></div>
+
+  <script>
+    const txt = document.querySelector('.draggable-text');
+    let dragging = false, offsetX = 0, offsetY = 0;
+
+    txt.addEventListener('mousedown', e => {
+      dragging = true;
+      txt.classList.add('dragging');
+      const rect = txt.getBoundingClientRect();
+      offsetX = e.clientX - rect.left;
+      offsetY = e.clientY - rect.top;
+    });
+    document.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      txt.style.left = `${e.clientX - offsetX}px`;
+      txt.style.top = `${e.clientY - offsetY}px`;
+    });
+    document.addEventListener('mouseup', () => {
+      dragging = false; txt.classList.remove('dragging');
+    });
+    // touch 지원
+    txt.addEventListener('touchstart', e => {
+      dragging = true;
+      const t = e.touches[0];
+      const rect = txt.getBoundingClientRect();
+      offsetX = t.clientX - rect.left;
+      offsetY = t.clientY - rect.top;
+    });
+    document.addEventListener('touchmove', e => {
+      if (!dragging) return;
+      const t = e.touches[0];
+      txt.style.left = `${t.clientX - offsetX}px`;
+      txt.style.top = `${t.clientY - offsetY}px`;
+    });
+    document.addEventListener('touchend', () => dragging = false);
+  </script>
+</body>
+</html>
